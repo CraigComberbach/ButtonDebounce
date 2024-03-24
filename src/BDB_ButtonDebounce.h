@@ -33,5 +33,37 @@ typedef enum
 /**********Type Definitions***********/
 /*********Object Definition***********/
 /****Module Function Prototypes*******/
+#include <stdbool.h>
+#include <stdint.h>
+
+typedef enum
+{
+	SWITCH_UNPRESSED,
+	SWITCH_PRESSED,
+	SWITCH_HELD,
+	SWITCH_RELEASED
+} SwitchState;
+
+typedef void (*SwitchStateCallback)(uint8_t switchId, SwitchState state);
+
+typedef struct
+{
+	uint32_t debounceDelay;
+	uint32_t holdDelay;
+	uint32_t lastStateChangeTime;
+	SwitchState state;
+	bool lastInput;
+	SwitchStateCallback callback;
+} Switch;
+
+void Switch_Init(Switch* sw, uint32_t debounceDelay, uint32_t holdDelay, SwitchStateCallback callback);
+void Switch_Update(Switch* sw, bool currentInput, uint32_t currentTime);
+void Process_Switches(Switch* switchArray, uint8_t numSwitches, bool* inputs, uint32_t currentTime);
+
+//State transition functions
+void Transition_ToPressed(Switch* sw, uint32_t currentTime);
+void Transition_ToReleased(Switch* sw, uint32_t currentTime);
+void Transition_ToHeld(Switch* sw, uint32_t currentTime);
+void Transition_ToUnpressed(Switch* sw, uint32_t currentTime);
 
 #endif//BDB_BUTTONDEBOUNCE_H

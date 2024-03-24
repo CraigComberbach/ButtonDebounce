@@ -1,6 +1,26 @@
 #include "BDB_ButtonDebounce.h"
 #include "unity.h"
 
+/***************************Test Set/Get/Wrappers*****************************/
+void TestSetBDB_Selves_debounceDelay(BDB_ObjectList_t ID, uint32_t NewValue);
+uint32_t TestGetBDB_Selves_debounceDelay(BDB_ObjectList_t ID);
+
+void TestSetBDB_Selves_holdDelay(BDB_ObjectList_t ID, uint32_t NewValue);
+uint32_t TestGetBDB_Selves_holdDelay(BDB_ObjectList_t ID);
+
+void TestSetBDB_Selves_lastStateChangeTime(BDB_ObjectList_t ID, uint32_t NewValue);
+uint32_t TestGetBDB_Selves_lastStateChangeTime(BDB_ObjectList_t ID);
+
+void TestSetBDB_Selves_state(BDB_ObjectList_t ID, SwitchState NewValue);
+SwitchState TestGetBDB_Selves_state(BDB_ObjectList_t ID);
+
+void TestSetBDB_Selves_lastInput(BDB_ObjectList_t ID, bool NewValue);
+bool TestGetBDB_Selves_lastInput(BDB_ObjectList_t ID);
+
+void TestSetBDB_Selves_callback(BDB_ObjectList_t ID, SwitchStateCallback NewValue);
+SwitchStateCallback TestGetBDB_Selves_callback(BDB_ObjectList_t ID);
+
+/*********************************Test Mocks**********************************/
 //Mocked callback function to track state changes
 void MockCallbackFunction(uint8_t switchId, SwitchState state)
 {
@@ -17,24 +37,24 @@ void tearDown(void)
 
 void test_SwitchInit_InitializesProperly(void)
 {
-	Switch testSwitch;
-	Switch_Init(&testSwitch, 50, 100, MockCallbackFunction);
+	BDB_Object_t *testSwitch;
+	Switch_Init(testSwitch, 50, 100, MockCallbackFunction);
 
-	TEST_ASSERT_EQUAL_UINT32(50, testSwitch.debounceDelay);
-	TEST_ASSERT_EQUAL_UINT32(100, testSwitch.holdDelay);
-	TEST_ASSERT_EQUAL(SWITCH_UNPRESSED, testSwitch.state);
-	TEST_ASSERT_EQUAL_PTR(MockCallbackFunction, testSwitch.callback);
+	TEST_ASSERT_EQUAL_UINT32(50, TestGetBDB_Selves_debounceDelay(BDB_));
+	TEST_ASSERT_EQUAL_UINT32(100, TestGetBDB_Selves_holdDelay(BDB_));
+	TEST_ASSERT_EQUAL(SWITCH_UNPRESSED, TestGetBDB_Selves_state(BDB_));
+	TEST_ASSERT_EQUAL_PTR(MockCallbackFunction, TestGetBDB_Selves_callback(BDB_));
 }
 
 void test_SwitchUpdate_ToPressed(void)
 {
-	Switch testSwitch;
-	Switch_Init(&testSwitch, 50, 100, MockCallbackFunction);
+	BDB_Object_t *testSwitch;
+	Switch_Init(testSwitch, 50, 100, MockCallbackFunction);
 
 	//Simulate input to trigger transition to PRESSED state
-	Switch_Update(&testSwitch, true, 51);//Assume 51ms has passed, exceeding debounce delay
+	Switch_Update(testSwitch, true, 51);//Assume 51ms has passed, exceeding debounce delay
 
-	TEST_ASSERT_EQUAL(SWITCH_PRESSED, testSwitch.state);
+	TEST_ASSERT_EQUAL(SWITCH_PRESSED, TestGetBDB_Selves_state(BDB_));
 }
 
 void test_TransitionFunctions_CallCallbackCorrectly(void)

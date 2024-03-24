@@ -1,6 +1,8 @@
 #ifndef BDB_BUTTONDEBOUNCE_H
 #define BDB_BUTTONDEBOUNCE_H
 /**********Include Headers************/
+#include <stdbool.h>
+#include <stdint.h>
 #include "Config.h"
 
 /**********Add to config.h************/
@@ -31,11 +33,6 @@ typedef enum
 
 /************Enumeration**************/
 /**********Type Definitions***********/
-/*********Object Definition***********/
-/****Module Function Prototypes*******/
-#include <stdbool.h>
-#include <stdint.h>
-
 typedef enum
 {
 	SWITCH_UNPRESSED,
@@ -46,24 +43,12 @@ typedef enum
 
 typedef void (*SwitchStateCallback)(uint8_t switchId, SwitchState state);
 
-typedef struct
-{
-	uint32_t debounceDelay;
-	uint32_t holdDelay;
-	uint32_t lastStateChangeTime;
-	SwitchState state;
-	bool lastInput;
-	SwitchStateCallback callback;
-} Switch;
+/*********Object Definition***********/
+typedef struct Switch BDB_Object_t;
 
-void Switch_Init(Switch* sw, uint32_t debounceDelay, uint32_t holdDelay, SwitchStateCallback callback);
-void Switch_Update(Switch* sw, bool currentInput, uint32_t currentTime);
-void Process_Switches(Switch* switchArray, uint8_t numSwitches, bool* inputs, uint32_t currentTime);
-
-//State transition functions
-void Transition_ToPressed(Switch* sw, uint32_t currentTime);
-void Transition_ToReleased(Switch* sw, uint32_t currentTime);
-void Transition_ToHeld(Switch* sw, uint32_t currentTime);
-void Transition_ToUnpressed(Switch* sw, uint32_t currentTime);
+/****Module Function Prototypes*******/
+void Switch_Init(BDB_Object_t *sw, uint32_t debounceDelay, uint32_t holdDelay, SwitchStateCallback callback);
+void Switch_Update(BDB_Object_t *sw, bool currentInput, uint32_t currentTime);
+void Process_Switches(BDB_Object_t *switchArray, uint8_t numSwitches, bool *inputs, uint32_t currentTime);
 
 #endif//BDB_BUTTONDEBOUNCE_H

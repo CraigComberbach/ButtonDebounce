@@ -21,9 +21,26 @@
 /*************Structures**************/
 /**********Global Variables***********/
 /*********Object Definition***********/
+struct Switch
+{
+	uint32_t debounceDelay;
+	uint32_t holdDelay;
+	uint32_t lastStateChangeTime;
+	SwitchState state;
+	bool lastInput;
+	SwitchStateCallback callback;
+};
+struct Switch selves[NUMBER_OF_BUTTON_DEBOUNCE_OBJECTS];
+
 /*****Local Function Prototypes*******/
+//State transition functions
+void Transition_ToPressed(BDB_Object_t *sw, uint32_t currentTime);
+void Transition_ToReleased(BDB_Object_t *sw, uint32_t currentTime);
+void Transition_ToHeld(BDB_Object_t *sw, uint32_t currentTime);
+void Transition_ToUnpressed(BDB_Object_t *sw, uint32_t currentTime);
+
 /*********Main Body Of Code***********/
-void Switch_Init(Switch* sw, uint32_t debounceDelay, uint32_t holdDelay, SwitchStateCallback callback)
+void Switch_Init(BDB_Object_t *sw, uint32_t debounceDelay, uint32_t holdDelay, SwitchStateCallback callback)
 {
 	sw->debounceDelay = debounceDelay;
 	sw->holdDelay = holdDelay;
@@ -33,7 +50,7 @@ void Switch_Init(Switch* sw, uint32_t debounceDelay, uint32_t holdDelay, SwitchS
 	sw->callback = callback;
 }
 
-void Transition_ToPressed(Switch* sw, uint32_t currentTime)
+void Transition_ToPressed(BDB_Object_t *sw, uint32_t currentTime)
 {
 	sw->state = SWITCH_PRESSED;
 	sw->lastStateChangeTime = currentTime;
@@ -43,7 +60,7 @@ void Transition_ToPressed(Switch* sw, uint32_t currentTime)
 	}
 }
 
-void Transition_ToReleased(Switch* sw, uint32_t currentTime)
+void Transition_ToReleased(BDB_Object_t *sw, uint32_t currentTime)
 {
 	sw->state = SWITCH_RELEASED;
 	sw->lastStateChangeTime = currentTime;
@@ -53,7 +70,7 @@ void Transition_ToReleased(Switch* sw, uint32_t currentTime)
 	}
 }
 
-void Transition_ToHeld(Switch* sw, uint32_t currentTime)
+void Transition_ToHeld(BDB_Object_t *sw, uint32_t currentTime)
 {
 	sw->state = SWITCH_HELD;
 	if(sw->callback)
@@ -62,7 +79,7 @@ void Transition_ToHeld(Switch* sw, uint32_t currentTime)
 	}
 }
 
-void Transition_ToUnpressed(Switch* sw, uint32_t currentTime)
+void Transition_ToUnpressed(BDB_Object_t *sw, uint32_t currentTime)
 {
 	sw->state = SWITCH_UNPRESSED;
 	sw->lastStateChangeTime = currentTime;
@@ -72,7 +89,7 @@ void Transition_ToUnpressed(Switch* sw, uint32_t currentTime)
 	}
 }
 
-void Switch_Update(Switch* sw, bool currentInput, uint32_t currentTime)
+void Switch_Update(BDB_Object_t *sw, bool currentInput, uint32_t currentTime)
 {
 	bool debounceTimeElapsed = (currentTime - sw->lastStateChangeTime) > sw->debounceDelay;
 	if(currentInput != sw->lastInput)
@@ -118,7 +135,7 @@ void Switch_Update(Switch* sw, bool currentInput, uint32_t currentTime)
 	}
 }
 
-void Process_Switches(Switch* switchArray, uint8_t numSwitches, bool* inputs, uint32_t currentTime)
+void Process_Switches(BDB_Object_t *switchArray, uint8_t numSwitches, bool *inputs, uint32_t currentTime)
 {
 	for(uint8_t i = 0; i < numSwitches; i++)
 	{
@@ -127,5 +144,83 @@ void Process_Switches(Switch* switchArray, uint8_t numSwitches, bool* inputs, ui
 }
 
 #ifdef ENABLE_BUTTON_DEBOUNCE_TEST_WRAPPERS
+void TestSetBDB_Selves_debounceDelay(BDB_ObjectList_t ID, uint32_t NewValue);
+uint32_t TestGetBDB_Selves_debounceDelay(BDB_ObjectList_t ID);
+void TestSetBDB_Selves_holdDelay(BDB_ObjectList_t ID, uint32_t NewValue);
+uint32_t TestGetBDB_Selves_holdDelay(BDB_ObjectList_t ID);
+void TestSetBDB_Selves_lastStateChangeTime(BDB_ObjectList_t ID, uint32_t NewValue);
+uint32_t TestGetBDB_Selves_lastStateChangeTime(BDB_ObjectList_t ID);
+void TestSetBDB_Selves_state(BDB_ObjectList_t ID, SwitchState NewValue);
+SwitchState TestGetBDB_Selves_state(BDB_ObjectList_t ID);
+void TestSetBDB_Selves_lastInput(BDB_ObjectList_t ID, bool NewValue);
+bool TestGetBDB_Selves_lastInput(BDB_ObjectList_t ID);
+void TestSetBDB_Selves_callback(BDB_ObjectList_t ID, SwitchStateCallback NewValue);
+SwitchStateCallback TestGetBDB_Selves_callback(BDB_ObjectList_t ID);
+
+void TestSetBDB_Selves_debounceDelay(BDB_ObjectList_t ID, uint32_t NewValue)
+{
+	selves[ID].debounceDelay = NewValue;
+	return;
+}
+
+uint32_t TestGetBDB_Selves_debounceDelay(BDB_ObjectList_t ID)
+{
+	return selves[ID].debounceDelay;
+}
+
+void TestSetBDB_Selves_holdDelay(BDB_ObjectList_t ID, uint32_t NewValue)
+{
+	selves[ID].holdDelay = NewValue;
+	return;
+}
+
+uint32_t TestGetBDB_Selves_holdDelay(BDB_ObjectList_t ID)
+{
+	return selves[ID].holdDelay;
+}
+
+void TestSetBDB_Selves_lastStateChangeTime(BDB_ObjectList_t ID, uint32_t NewValue)
+{
+	selves[ID].lastStateChangeTime = NewValue;
+	return;
+}
+
+uint32_t TestGetBDB_Selves_lastStateChangeTime(BDB_ObjectList_t ID)
+{
+	return selves[ID].lastStateChangeTime;
+}
+
+void TestSetBDB_Selves_state(BDB_ObjectList_t ID, SwitchState NewValue)
+{
+	selves[ID].state = NewValue;
+	return;
+}
+
+SwitchState TestGetBDB_Selves_state(BDB_ObjectList_t ID)
+{
+	return selves[ID].state;
+}
+
+void TestSetBDB_Selves_lastInput(BDB_ObjectList_t ID, bool NewValue)
+{
+	selves[ID].lastInput = NewValue;
+	return;
+}
+
+bool TestGetBDB_Selves_lastInput(BDB_ObjectList_t ID)
+{
+	return selves[ID].lastInput;
+}
+
+void TestSetBDB_Selves_callback(BDB_ObjectList_t ID, SwitchStateCallback NewValue)
+{
+	selves[ID].callback = NewValue;
+	return;
+}
+
+SwitchStateCallback TestGetBDB_Selves_callback(BDB_ObjectList_t ID)
+{
+	return selves[ID].callback;
+}
 
 #endif
